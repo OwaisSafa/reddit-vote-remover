@@ -34,6 +34,20 @@ Sometimes you want to clean up your Reddit voting history. This tool makes it ea
 - **Frontend:** Vanilla JavaScript, Socket.IO, GitHub Pages
 - **Backend:** Python, Flask, Flask-SocketIO, Gevent
 
+## CLI Version
+
+Want to run it locally without the web interface?
+
+```bash
+# Install dependencies
+pip install requests
+
+# Run CLI
+python cli.py
+```
+
+Follow the prompts to enter your credentials and remove votes.
+
 ## Local Development
 
 ### Frontend
