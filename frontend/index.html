@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Vote Remover</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 20 20">
+                    <circle cx="10" cy="10" r="10" fill="#FF4500"/>
+                    <circle cx="10" cy="10" r="7" fill="#fff"/>
+                </svg>
+                <h1>Reddit Vote Remover</h1>
+            </div>
+            <div class="header-right">
+                <a href="https://github.com/OwaisSafa/reddit-vote-remover" target="_blank" rel="noopener noreferrer" class="github-link">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    <span>GitHub</span>
+                </a>
+                <div class="status">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Offline</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="info-card warning-card">
+                <h2>⚠️ Security Warning</h2>
+                <ul>
+                    <li>Credentials are NEVER stored permanently - only used in-memory during processing</li>
+                    <li>This tool is open-source. you can view the code <a href="https://github.com/OwaisSafa/reddit-vote-remover" target="_blank" style="color: inherit;">here</a></li>
+                    <li><strong>IMPORTANT: Log out of Reddit after completing the removal to invalidate your session cookies</strong></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Configure Removal</h2>
+                <form id="removalForm">
+                    <div class="form-group">
+                        <label for="cookies">
+                            <span class="label-icon">🍪</span>
+                            Reddit Session Cookies
+                            <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="password" 
+                            id="cookies" 
+                            placeholder="Paste your Reddit cookies here..."
+                            required
+                        >
+                        <small>Press F12 → Network → Copy Cookie header from any reddit.com request</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">
+                            <span class="label-icon">👤</span>
+                            Reddit Username
+                            <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            placeholder="your_username"
+                            required
+                        >
+                        <small>Enter without u/ prefix</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <span class="label-icon">🎯</span>
+                            What to Remove
+                        </label>
+                        <div class="radio-group">
+                            <label class="radio-card">
+                                <input type="radio" name="voteType" value="upvotes" checked>
+                                <div class="radio-content">
+                                    <svg class="vote-arrow up" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 4l8 12H4z"/>
+                                    </svg>
+                                    <span>Upvotes</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="voteType" value="downvotes">
+                                <div class="radio-content">
+                                    <svg class="vote-arrow down" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 20L4 8h16z"/>
+                                    </svg>
+                                    <span>Downvotes</span>
+                                </div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="voteType" value="both">
+                                <div class="radio-content">
+                                    <svg class="vote-arrow both" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path class="up-part" d="M12 3l7 9H5z"/>
+                                        <path class="down-part" d="M12 21l-7-9h14z"/>
+                                    </svg>
+                                    <span>Both</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delay">
+                            <span class="label-icon">⏱️</span>
+                            Request Delay (seconds)
+                        </label>
+                        <input 
+                            type="number" 
+                            id="delay" 
+                            value="0.5" 
+                            min="0.3" 
+                            max="5" 
+                            step="0.1"
+                        >
+                        <small>Recommended: 0.5s to avoid rate limiting</small>
+                    </div>
+
+                    <button type="submit" class="btn-reddit" id="startBtn">
+                        <span id="btnText">Start Removal</span>
+                        <span class="loader" id="loader" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="card progress-card" id="progressCard" style="display: none;">
+                <h2>Processing...</h2>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item stat-success">
+                        <div class="stat-value" id="statRemoved">0</div>
+                        <div class="stat-label">Removed</div>
+                    </div>
+                    <div class="stat-item stat-error">
+                        <div class="stat-value" id="statFailed">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+
+                <div class="log" id="log"></div>
+            </div>
+
+            <div class="card result-card" id="resultCard" style="display: none;">
+                <h2>✅ Complete!</h2>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Made with ❤️ for Reddit users | Not affiliated with Reddit Inc.</p>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
